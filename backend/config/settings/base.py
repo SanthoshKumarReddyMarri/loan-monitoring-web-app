@@ -50,6 +50,12 @@ INSTALLED_APPS = [
     "django_filters",
     "corsheaders",
     "drf_spectacular",
+
+    # Local Apps
+    "apps.core.apps.CoreConfig",
+    "apps.accounts.apps.AccountsConfig",
+    "apps.loans.apps.LoansConfig",
+    "apps.payments.apps.PaymentsConfig",
 ]
 
 MIDDLEWARE = [
@@ -110,6 +116,9 @@ DATABASES = {
         "PORT": config("DB_PORT", cast=int),
     }
 }
+
+
+AUTH_USER_MODEL = "accounts.User"
 
 
 # Password validation
