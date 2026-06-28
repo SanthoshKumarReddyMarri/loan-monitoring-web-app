@@ -16,7 +16,7 @@ from pathlib import Path
 from decouple import Csv, config
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
-BASE_DIR = Path(__file__).resolve().parent.parent
+BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
 
 # Quick-start development settings - unsuitable for production
@@ -27,9 +27,13 @@ SECRET_KEY= config("SECRET_KEY")
 
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = config("DEBUG", default=False, cast=bool)
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = config(
+    "ALLOWED_HOSTS",
+    default="",
+    cast=Csv(),
+)
 
 # Application definition
 
@@ -40,10 +44,17 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+
+     # Third Party Apps
+    "rest_framework",
+    "django_filters",
+    "corsheaders",
+    "drf_spectacular",
 ]
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    "corsheaders.middleware.CorsMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -75,10 +86,28 @@ WSGI_APPLICATION = "config.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
+REST_FRAMEWORK = {
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
+    "DEFAULT_FILTER_BACKENDS": [
+        "django_filters.rest_framework.DjangoFilterBackend",
+    ],
+}
+
+SPECTACULAR_SETTINGS = {
+    "TITLE": "Loan Monitoring API",
+    "DESCRIPTION": "Backend APIs for Loan Monitoring Application",
+    "VERSION": "1.0.0",
+}
+
+
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": config("DB_NAME"),
+        "USER": config("DB_USER"),
+        "PASSWORD": config("DB_PASSWORD"),
+        "HOST": config("DB_HOST"),
+        "PORT": config("DB_PORT", cast=int),
     }
 }
 
@@ -102,12 +131,16 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:4200",
+]
+
 # Internationalization
 # https://docs.djangoproject.com/en/6.0/topics/i18n/
 
 LANGUAGE_CODE = "en-us"
 
-TIME_ZONE = "UTC"
+TIME_ZONE = "Asia/Kolkata"
 
 USE_I18N = True
 
@@ -117,4 +150,4 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
-STATIC_URL = "static/"
+STATIC_URL = "/static/"
