@@ -29,6 +29,10 @@ SECRET_KEY= config("SECRET_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config("DEBUG", default=False, cast=bool)
 
+import os
+
+GOOGLE_CLIENT_ID = config("GOOGLE_CLIENT_ID")
+
 ALLOWED_HOSTS = config(
     "ALLOWED_HOSTS",
     default="",

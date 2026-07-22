@@ -68,45 +68,45 @@ class GoogleAuthService:
     import uuid
 
 
-@staticmethod
-def generate_username(email: str) -> str:
-    """
-    Generate a unique username from the email address.
-    """
+    @staticmethod
+    def generate_username(email: str) -> str:
+        """
+        Generate a unique username from the email address.
+        """
 
-    prefix = email.split("@")[0]
-    suffix = uuid.uuid4().hex[:8]
+        prefix = email.split("@")[0]
+        suffix = uuid.uuid4().hex[:8]
 
-    return f"{prefix}_{suffix}"
-
-
-@staticmethod
-def generate_tokens(user):
-    """
-    Generate JWT access and refresh tokens.
-    """
-
-    refresh = RefreshToken.for_user(user)
-
-    return {
-        "access": str(refresh.access_token),
-        "refresh": str(refresh),
-    }
+        return f"{prefix}_{suffix}"
 
 
-@staticmethod
-def authenticate(id_token: str):
-    """
-    Authenticate a user using a Google ID token.
-    """
+    @staticmethod
+    def generate_tokens(user):
+        """
+        Generate JWT access and refresh tokens.
+        """
 
-    google_user = GoogleAuthService.verify_google_token(id_token)
+        refresh = RefreshToken.for_user(user)
 
-    user = GoogleAuthService.get_or_create_user(google_user)
+        return {
+            "access": str(refresh.access_token),
+            "refresh": str(refresh),
+        }
 
-    tokens = GoogleAuthService.generate_tokens(user)
 
-    return {
-        "user": user,
-        "tokens": tokens,
-    }
+    @staticmethod
+    def authenticate(id_token: str):
+        """
+        Authenticate a user using a Google ID token.
+        """
+
+        google_user = GoogleAuthService.verify_google_token(id_token)
+
+        user = GoogleAuthService.get_or_create_user(google_user)
+
+        tokens = GoogleAuthService.generate_tokens(user)
+
+        return {
+            "user": user,
+            "tokens": tokens,
+        }
