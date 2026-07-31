@@ -16,6 +16,9 @@ export class AuthService {
       `${environment.apiUrl}/google/login/`,
       {
          id_token: idToken
+      },
+      {
+      withCredentials: true
       }
     );
 }

@@ -27,12 +27,24 @@ class GoogleLoginAPIView(APIView):
 
         user_data = UserResponseSerializer(result["user"]).data
 
-        return ApiResponse.success(
+        response= ApiResponse.success(
             data={
-                "access": result["tokens"]["access"],
-                "refresh": result["tokens"]["refresh"],
+                # "access": result["tokens"]["access"],
+                # "refresh": result["tokens"]["refresh"],
                 "user": user_data,
             },
             message="Login successful.",
             status_code=status.HTTP_200_OK,
         )
+
+        response.set_cookie(
+                    key="access_token",
+                    value=result["tokens"]["access"],
+                    httponly=True,
+                    secure=False,
+                    samesite="Lax",
+                    path="/",
+                )
+                    
+        return response
+        
