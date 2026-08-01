@@ -22,5 +22,13 @@ export class AuthService {
       }
     );
 }
+ getCurrentUser() {
+      return this.http.get(
+        `${environment.apiUrl}/me/`,
+        {
+          withCredentials: true
+        }
+      );
+    }
 
 }

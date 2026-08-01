@@ -1,6 +1,6 @@
 from django.urls import path
 
-from apps.accounts.views import GoogleLoginAPIView
+from apps.accounts.views import (GoogleLoginAPIView,MeAPIView,)
 
 urlpatterns = [
     path(
@@ -8,4 +8,5 @@ urlpatterns = [
         GoogleLoginAPIView.as_view(),
         name="google-login",
     ),
+    path("me/", MeAPIView.as_view(), name="me"),
 ]

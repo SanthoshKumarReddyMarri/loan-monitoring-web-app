@@ -47,4 +47,21 @@ class GoogleLoginAPIView(APIView):
                 )
                     
         return response
+    
+
+#check cookies functionality ,fetching user details
+class MeAPIView(APIView):
+    """
+    Returns the currently authenticated user.
+    """
+
+    def get(self, request):
+
+        user_data = UserResponseSerializer(request.user).data
+
+        return ApiResponse.success(
+            data=user_data,
+            message="User fetched successfully.",
+            status_code=status.HTTP_200_OK,
+        )
         
