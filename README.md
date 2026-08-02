@@ -5,3 +5,6 @@ This project is built using Django and Angular.
 Step 1: Git Setup is done
 Step 2: Project setup is done vth config setup 
 Step 3: App setup 
+Step 4: Django Setup 
+Step 5: Angular Setup
+Step 6: Implemented JWt Auth
