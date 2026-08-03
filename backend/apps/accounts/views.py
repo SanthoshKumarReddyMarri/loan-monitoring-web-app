@@ -6,10 +6,13 @@ from apps.accounts.serializers import (
     GoogleLoginSerializer,
     UserResponseSerializer,
 )
-from apps.accounts.services import GoogleAuthService
+from apps.accounts.services import GoogleAuthService,AuthCookieService
 from apps.core.responses import ApiResponse
 
 from rest_framework_simplejwt.serializers import TokenRefreshSerializer
+
+from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.exceptions import TokenError
 
 
 class GoogleLoginAPIView(APIView):
@@ -41,23 +44,17 @@ class GoogleLoginAPIView(APIView):
             status_code=status.HTTP_200_OK,
         )
 
-        response.set_cookie(
-                    key="access_token",
-                    value=result["tokens"]["access"],
-                    httponly=True,
-                    secure=False,
-                    samesite="Lax",
-                    path="/",
-                )
-        
-        response.set_cookie(
-                    key="refresh_token",
-                    value=result["tokens"]["refresh"],
-                    httponly=True,
-                    secure=False,
-                    samesite="Lax",
-                    path="/",
-                )
+        AuthCookieService.set_access_cookie(
+            response,
+            result["tokens"]["access"],
+        )
+
+        AuthCookieService.set_refresh_cookie(
+            response,
+            result["tokens"]["refresh"],
+        )
+
+
                     
         return response
     
@@ -112,26 +109,61 @@ class TokenRefreshAPIView(APIView):
             status_code=status.HTTP_200_OK,
         )
 
-        # New access token
-        response.set_cookie(
-            key="access_token",
-            value=tokens["access"],
-            httponly=True,
-            secure=False,
-            samesite="Lax",
-            path="/",
+        AuthCookieService.set_access_cookie(
+            response,
+            tokens["access"],
         )
 
-        # Because ROTATE_REFRESH_TOKENS=True,
-        # SimpleJWT can return a new refresh token too.
         if "refresh" in tokens:
-            response.set_cookie(
-                key="refresh_token",
-                value=tokens["refresh"],
-                httponly=True,
-                secure=False,
-                samesite="Lax",
-                path="/",
+            AuthCookieService.set_refresh_cookie(
+                response,
+                tokens["refresh"],
             )
 
         return response
+    
+
+class LogoutAPIView(APIView):
+    """
+    Logout the user by blacklisting the refresh token
+    and deleting authentication cookies.
+    """
+
+    authentication_classes = []
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        refresh_token = request.COOKIES.get("refresh_token")
+
+        if refresh_token:
+            try:
+                token = RefreshToken(refresh_token)
+                token.blacklist()
+            except TokenError:
+                pass
+
+        response = ApiResponse.success(
+            message="Logout successful.",
+            status_code=status.HTTP_200_OK,
+        )
+
+        AuthCookieService.clear_auth_cookies(response)
+
+        return response
+    
+
+
+from django.views.decorators.csrf import ensure_csrf_cookie
+from django.utils.decorators import method_decorator
+
+
+@method_decorator(ensure_csrf_cookie, name="dispatch")
+class CSRFTokenAPIView(APIView):
+    authentication_classes = []
+    permission_classes = [AllowAny]
+
+    def get(self, request):
+        return ApiResponse.success(
+            message="CSRF cookie set.",
+            status_code=status.HTTP_200_OK,
+        )

@@ -1,27 +1,37 @@
+from rest_framework.authentication import CSRFCheck
+from rest_framework.exceptions import PermissionDenied
 from rest_framework_simplejwt.authentication import JWTAuthentication
-from rest_framework_simplejwt.exceptions import InvalidToken
 
-
-from rest_framework_simplejwt.authentication import JWTAuthentication
-from rest_framework_simplejwt.exceptions import InvalidToken
-
+from django.conf import settings
 
 class CookieJWTAuthentication(JWTAuthentication):
-    """
-    Authenticate users using JWT stored in HttpOnly cookies.
-    """
 
     def authenticate(self, request):
-        access_token = request.COOKIES.get("access_token")
+        access_token = request.COOKIES.get(settings.AUTH_COOKIE_ACCESS_NAME)
 
         if not access_token:
             return None
-        
-        try:
-            validated_token = self.get_validated_token(access_token)
-            user = self.get_user(validated_token)
 
-            return (user, validated_token)
+        validated_token = self.get_validated_token(access_token)
+        user = self.get_user(validated_token)
 
-        except InvalidToken:
-            raise InvalidToken("Invalid or expired access token.")
+        self.enforce_csrf(request)
+
+        return user, validated_token
+
+    def enforce_csrf(self, request):
+        check = CSRFCheck(lambda req: None)
+
+        check.process_request(request)
+
+        reason = check.process_view(
+            request,
+            None,
+            (),
+            {},
+        )
+
+        if reason:
+            raise PermissionDenied(
+                f"CSRF Failed: {reason}"
+            )

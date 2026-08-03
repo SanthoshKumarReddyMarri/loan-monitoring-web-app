@@ -110,3 +110,48 @@ class GoogleAuthService:
             "user": user,
             "tokens": tokens,
         }
+    
+
+from django.conf import settings
+
+
+class AuthCookieService:
+    """
+    Manage authentication cookies.
+    """
+
+    @staticmethod
+    def set_access_cookie(response, token):
+        response.set_cookie(
+            key=settings.AUTH_COOKIE_ACCESS_NAME,
+            value=token,
+            httponly=True,
+            secure=settings.AUTH_COOKIE_SECURE,
+            samesite=settings.AUTH_COOKIE_SAMESITE,
+            path="/",
+        )
+
+    @staticmethod
+    def set_refresh_cookie(response, token):
+        response.set_cookie(
+            key=settings.AUTH_COOKIE_REFRESH_NAME,
+            value=token,
+            httponly=True,
+            secure=settings.AUTH_COOKIE_SECURE,
+            samesite=settings.AUTH_COOKIE_SAMESITE,
+            path="/",
+        )
+
+    @staticmethod
+    def clear_auth_cookies(response):
+        response.delete_cookie(
+            key=settings.AUTH_COOKIE_ACCESS_NAME,
+            path="/",
+            samesite=settings.AUTH_COOKIE_SAMESITE,
+        )
+
+        response.delete_cookie(
+            key=settings.AUTH_COOKIE_REFRESH_NAME,
+            path="/",
+            samesite=settings.AUTH_COOKIE_SAMESITE,
+        )

@@ -159,6 +159,10 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 
+CSRF_TRUSTED_ORIGINS = [
+    "http://localhost:4200",
+]
+
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:4200",
 ]
@@ -200,3 +204,17 @@ SIMPLE_JWT = {
 
     "AUTH_HEADER_TYPES": ("Bearer",),
 }
+
+AUTH_COOKIE_SECURE = config(
+    "AUTH_COOKIE_SECURE",
+    default=False,
+    cast=bool,
+)
+
+AUTH_COOKIE_SAMESITE = config(
+    "AUTH_COOKIE_SAMESITE",
+    default="Lax",
+)
+
+AUTH_COOKIE_ACCESS_NAME = "access_token"
+AUTH_COOKIE_REFRESH_NAME = "refresh_token"
